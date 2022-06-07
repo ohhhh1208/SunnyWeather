@@ -1,10 +1,10 @@
 package com.sunnyweather.android.logic
 
 import androidx.lifecycle.liveData
+import com.sunnyweather.android.logic.dao.PlaceDao
 import com.sunnyweather.android.logic.model.Place
 import com.sunnyweather.android.logic.model.Weather
 import com.sunnyweather.android.logic.network.SunnyWeatherNetwork
-import com.sunnyweather.android.logic.network.SunnyWeatherNetwork.searchPlaces
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -19,11 +19,11 @@ import kotlin.coroutines.CoroutineContext
 object Repository {
 
     private fun <T> fire(context: CoroutineContext, block: suspend () -> Result<T>) =
-        liveData<Result<T>>(context) {
+        liveData(context) {
             val result = try {
                 block()
             } catch (e: Exception) {
-                Result.failure<T>(e)
+                Result.failure(e)
             }
             emit(result)
         }
@@ -64,4 +64,14 @@ object Repository {
             }
         }
     }
+
+    /**
+     * 实现方式并不标准，因为即使是对SharedPreferences文件进行读写的操作，也是不太建议在主线程中进行，虽然它的执行速度
+    通常会很快。最佳的实现方式肯定还是开启一个线程来执行这些比较耗时的任务，然后通过LiveData对象进行数据返回
+     */
+    fun savePlace(place: Place) = PlaceDao.savePlace(place)
+
+    fun getSavedPlace() = PlaceDao.getSavedPlace()
+
+    fun isPlaceSaved() = PlaceDao.isPlaceSaved()
 }

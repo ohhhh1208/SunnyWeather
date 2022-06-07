@@ -14,7 +14,7 @@ import com.sunnyweather.android.ui.weather.WeatherActivity
 /**
  * Created by oxq on 2022/6/6.
  */
-class PlaceAdapter(private val fragment: Fragment, private val placeList: List<Place>) :
+class PlaceAdapter(private val fragment: PlaceFragment, private val placeList: List<Place>) :
     RecyclerView.Adapter<PlaceAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -31,10 +31,12 @@ class PlaceAdapter(private val fragment: Fragment, private val placeList: List<P
                 putExtra("location_lat", place.location.lat)
                 putExtra("place_name", place.name)
             }
+            fragment.viewModel.savePlace(place)
             fragment.startActivity(intent)
             fragment.activity?.finish()
         }
         return holder
+
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
