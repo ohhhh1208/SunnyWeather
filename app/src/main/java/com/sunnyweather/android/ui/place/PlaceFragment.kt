@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.sunnyweather.android.MainActivity
 import com.sunnyweather.android.databinding.FragmentPlaceBinding
 import com.sunnyweather.android.ui.weather.WeatherActivity
 
@@ -35,14 +36,13 @@ class PlaceFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPlaceBinding.inflate(inflater, container, false)
-        val view = binding.root
-        return view
+        return binding.root
         // return inflater.inflate(R.layout.fragment_place, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        if (viewModel.isPlaceSaved()) {
+        if (activity is MainActivity && viewModel.isPlaceSaved()) {
             val place = viewModel.getSavedPlace()
             val intent = Intent(context, WeatherActivity::class.java).apply {
                 putExtra("location_lng", place.location.lng)
@@ -68,7 +68,7 @@ class PlaceFragment : Fragment() {
                 adapter.notifyDataSetChanged()
             }
         }
-        viewModel.placeLiveData.observe(viewLifecycleOwner, Observer { result ->
+        viewModel.placeLiveData.observe(viewLifecycleOwner) { result ->
             val places = result.getOrNull()
             if (places != null) {
                 binding.recyclerView.visibility = View.VISIBLE
@@ -80,7 +80,7 @@ class PlaceFragment : Fragment() {
                 Toast.makeText(activity, "未能查询到任何地点", Toast.LENGTH_SHORT).show()
                 result.exceptionOrNull()?.printStackTrace()
             }
-        })
+        }
     }
 
     override fun onDestroyView() {
