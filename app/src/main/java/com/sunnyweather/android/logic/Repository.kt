@@ -18,7 +18,15 @@ import kotlin.coroutines.CoroutineContext
  */
 object Repository {
 
+    /**
+     * fire()按照liveData()函数的参数接收标准定义的一个高阶函数
+     * 由于使用协程简化网络回调,导致每个网络请求接口都可能抛出异常
+     * 所以在统一的入口函数中封装进行try catch 处理
+     */
     private fun <T> fire(context: CoroutineContext, block: suspend () -> Result<T>) =
+    //为了能将异步获取的数据以响应式编程的方式通知给上一层，通常会返回一个LiveData 对象
+    //liveData()函数自动构建并返回一个LiveData 对象，然后在它的代码块中提供一个挂起函数的上下文，
+    //这样我们就可以在liveData()函数的代码块中调用任意的挂起函数
         liveData(context) {
             val result = try {
                 block()
@@ -28,6 +36,8 @@ object Repository {
             emit(result)
         }
 
+    //将liveData()函数的线程参数类型指定成了Dispatchers.IO，这样代码块中的所有代码就都运行在子线程中了。
+    //Android 是不允许在主线程中进行网络请求的,诸如读写数据库之类的本地数据操作也是不建议在主线程中进行
     fun searchPlaces(query: String) = fire(Dispatchers.IO) {
         val placeResponse = SunnyWeatherNetwork.searchPlaces(query)
         if (placeResponse.status == "ok") {
@@ -38,8 +48,15 @@ object Repository {
         }
     }
 
+    /**
+     * 统一封装刷新天气
+     */
     fun refreshWeather(lng: String, lat: String) = fire(Dispatchers.IO) {
+        //coroutineScope函数也是一个挂起函数,能继承外部的协程的作用域并创建一个子协程
+        //它可以保证其作用域内的所有代码和子协程在全部执行完之前，外部的协程会一直被挂起
         coroutineScope {
+            //async函数必须在协程作用域当中才能调用，它会创建一个新的子协程并返回一个Deferred对象
+            //要调用Deferred对象的await()方法即可要获取async函数代码块的执行结果
             val deferredRealtime = async {
                 SunnyWeatherNetwork.getRealtimeWeather(lng, lat)
             }

@@ -9,6 +9,7 @@ import retrofit2.http.Path
 
 /**
  * Created by oxq on 2022/6/6.
+ * 用于访问天气信息API的Retrofit接口
  */
 interface WeatherService {
 

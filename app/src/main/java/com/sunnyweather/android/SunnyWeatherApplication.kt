@@ -16,6 +16,7 @@ class SunnyWeatherApplication : Application() {
         lateinit var context: Context
     }
 
+    //全局获取Context对象
     override fun onCreate() {
         super.onCreate()
         context = applicationContext

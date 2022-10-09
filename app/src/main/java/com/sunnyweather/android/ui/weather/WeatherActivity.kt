@@ -64,7 +64,7 @@ class WeatherActivity : AppCompatActivity() {
                 Toast.makeText(this, "无法成功获取天气信息", Toast.LENGTH_SHORT).show()
                 result.exceptionOrNull()?.printStackTrace()
             }
-            binding.swipeRefresh.isRefreshing = false
+            binding.swipeRefresh.isRefreshing = false//表示刷新事件结束，并隐藏刷新进度条
         })
         binding.swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
         refreshWeather()
@@ -76,6 +76,9 @@ class WeatherActivity : AppCompatActivity() {
         binding.swipeRefresh.isRefreshing = true
     }
 
+    /**
+     * 从Weather对象中获取数据，显示到相应的控件上
+     */
     private fun showWeatherInfo(weather: Weather) {
         binding.nowLy.placeName.text = viewModel.placeName
         val realtime = weather.realtime
